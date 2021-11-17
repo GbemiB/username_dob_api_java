@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Data
 public class UserResponseDto {
-    private HttpStatus responseCode;
+    private HttpStatus status;
     private String responseMessage;
 
 }

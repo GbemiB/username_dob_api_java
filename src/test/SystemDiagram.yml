@@ -1,0 +1,6 @@
+1. USER CREATE DETAILS (username and data of birth)
+2. DETAIL IS PERSISTED (Oracle data base call: details is persisted)
+3. USER CAN UPDATED DETAILS by username (Oracle data base call: details is updated)
+4. USER CAN GET DETAILS by username (Oracle data base call: details is retrieved)
+5. WHEN USER CALL THE GET END POINT RESPONSE OF “message”: “Hello, <username>! Happy birthday!”  if it's the user birthday
+or  “message”: “Hello, <username>! Your birthday is in N day(s)”.

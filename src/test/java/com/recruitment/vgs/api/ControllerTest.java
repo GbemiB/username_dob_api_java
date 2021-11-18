@@ -41,18 +41,6 @@ public class ControllerTest {
 				.andExpect(status().isNoContent());
 	}
 
-	@Test
-	@DisplayName("Test to validate get user")
-	public void shouldReturn200ToGetUser() throws Exception {
-
-		Mockito.when(userServiceMock.getUser(Mockito.anyString()))
-				.thenReturn(new String());
-
-		this.mockMvc.perform(get("/user/{username}", "gbemisola" ).contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new Request())))
-				.andExpect(status().isOk());
-	}
-
 
 	static String asJsonString(final Object obj) {
 		try {

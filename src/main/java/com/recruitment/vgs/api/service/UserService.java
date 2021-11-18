@@ -3,6 +3,8 @@ package com.recruitment.vgs.api.service;
 import com.recruitment.vgs.api.domain.Request;
 import com.recruitment.vgs.api.domain.Response;
 import com.recruitment.vgs.api.repository.UserRepository;
+import com.recruitment.vgs.api.util.DateDiffCalculator;
+import com.recruitment.vgs.api.util.DateToCalender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
 
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -38,8 +41,8 @@ public class UserService implements IUserService {
             exception.printStackTrace();
         }
         if (Objects.equals("000", responseCode)) {
-                response.setStatus(HttpStatus.NO_CONTENT);
-            }
+            response.setStatus(HttpStatus.NO_CONTENT);
+        }
         return response;
     }
 
@@ -54,14 +57,17 @@ public class UserService implements IUserService {
         }
         if (Objects.equals("000", responseCode)) {
 
-                response.setStatus(HttpStatus.NO_CONTENT);
-            }
+            response.setStatus(HttpStatus.NO_CONTENT);
+        }
         return response;
     }
 
     @Override
     public String getUser(String username) throws ParseException {
         Response response = new Response();
+        DateToCalender obj = new DateToCalender();
+        DateDiffCalculator dateDiffCalculator = new DateDiffCalculator();
+
         Optional<Request> user = null;
         try {
             user = userRepository.getByUsername(username);
@@ -71,16 +77,17 @@ public class UserService implements IUserService {
         if (user.isPresent()) {
             Request request = user.get();
 
-            String dob = request.getDateOfBirth();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String dob = request.getDateOfBirth();
             Date date = sdf.parse(dob);
 
-            logger.info(" Date coming from data base {} ", dob);
-
+            Calendar dateOfBirth = obj.dateToCalendar(date);
             Calendar currentDate = Calendar.getInstance();
-            Calendar dateOfBirth = Calendar.getInstance();
 
-            int noOfDaysToBirthDay = 0;
+            String todayDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+
+            Long noOfDaysToBirthDay = DateDiffCalculator.calculateDays(todayDate, dob);
+            logger.info(" Numbers of Days to birthday  {} ", noOfDaysToBirthDay);
 
             if ((currentDate.get(Calendar.MONTH) == dateOfBirth.get(Calendar.MONTH)) &&
                     (currentDate.get(Calendar.DAY_OF_MONTH) == (dateOfBirth.get(Calendar.DAY_OF_MONTH)))) {
@@ -90,8 +97,8 @@ public class UserService implements IUserService {
                 response.setResponseMessage("Hello, " + request.getUsername() + "! " +
                         " Your birthday is in " + noOfDaysToBirthDay + " day(s)");
             }
-
         }
         return response.getResponseMessage();
     }
+
 }

@@ -1,15 +1,17 @@
 package com.recruitment.vgs.api.controller;
 
-import com.recruitment.vgs.api.domain.UserRequestDto;
-import com.recruitment.vgs.api.domain.UserResponseDto;
+import com.recruitment.vgs.api.domain.Request;
+import com.recruitment.vgs.api.domain.Response;
 import com.recruitment.vgs.api.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-@RestController("/user")
+@RestController
+@RequestMapping("/user")
 public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -21,21 +23,21 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponseDto saveUser(@RequestBody UserRequestDto userRequestDto){
-        UserResponseDto response = userService.saveUser(userRequestDto);
-        return response;
+    public ResponseEntity<?> saveUser(@RequestBody Request userRequestDto){
+        Response response = userService.saveUser(userRequestDto);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity<?> updateUser(@RequestBody UserRequestDto userRequestDto,
+    public ResponseEntity<?> updateUser(@RequestBody Request userRequestDto,
                                         @PathVariable("username") String username) throws Exception {
-        UserResponseDto response = userService.updateUser(userRequestDto);
+        Response response = userService.updateUser(userRequestDto);
         return new ResponseEntity<Void>(response.getStatus());
     }
 
     @GetMapping("/{username}")
-    public UserResponseDto getUser(@PathVariable("username") String username) throws Exception {
-        UserResponseDto response = userService.getUser(username);
+    public String getUser(@PathVariable("username") String username) throws Exception {
+        String response = userService.getUser(username);
         return response;
     }
 

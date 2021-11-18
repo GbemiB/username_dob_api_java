@@ -1,7 +1,7 @@
 package com.recruitment.vgs.api.service;
 
-import com.recruitment.vgs.api.domain.UserRequestDto;
-import com.recruitment.vgs.api.domain.UserResponseDto;
+import com.recruitment.vgs.api.domain.Request;
+import com.recruitment.vgs.api.domain.Response;
 import com.recruitment.vgs.api.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,54 +27,53 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserResponseDto saveUser(UserRequestDto userRequestDto) {
-        UserResponseDto userResponseDto = new UserResponseDto();
+    public Response saveUser(Request request) {
+        Response response = new Response();
 
         String responseCode = null;
         try {
-            responseCode = userRepository.save(userRequestDto);
+            responseCode = userRepository.save(request);
+
         } catch (Exception exception) {
             exception.printStackTrace();
         }
         if (Objects.equals("000", responseCode)) {
-
-                userResponseDto.setStatus(HttpStatus.NO_CONTENT);
+                response.setStatus(HttpStatus.NO_CONTENT);
             }
-        return userResponseDto;
+        return response;
     }
 
     @Override
-    public UserResponseDto updateUser(UserRequestDto userRequestDto) {
-        UserResponseDto userResponseDto = new UserResponseDto();
-
+    public Response updateUser(Request request) {
+        Response response = new Response();
         String responseCode = null;
         try {
-            responseCode = userRepository.update(userRequestDto);
+            responseCode = userRepository.update(request);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
         if (Objects.equals("000", responseCode)) {
 
-                userResponseDto.setStatus(HttpStatus.NO_CONTENT);
+                response.setStatus(HttpStatus.NO_CONTENT);
             }
-        return userResponseDto;
+        return response;
     }
 
 
     // use DOB and current date to calculate birthday
     @Override
-    public UserResponseDto getUser(String username) throws ParseException {
-        UserResponseDto userResponseDto = new UserResponseDto();
-        Optional<UserRequestDto> user = null;
+    public String getUser(String username) throws ParseException {
+        Response response = new Response();
+        Optional<Request> user = null;
         try {
             user = userRepository.getByUsername(username);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
         if (user.isPresent()) {
-            UserRequestDto userRequestDto = user.get();
+            Request request = user.get();
 
-            String dob = userRequestDto.getDateOfBirth();
+            String dob = request.getDateOfBirth();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date date = sdf.parse(dob);
 
@@ -83,24 +82,18 @@ public class UserService implements IUserService {
             Calendar currentDate = Calendar.getInstance();
             Calendar dateOfBirth = Calendar.getInstance();
 
-            // use regex to split raw dob from db; replace - with, and pass in
-            dateOfBirth.set(1996, 9, 23);
-            System.out.println("currentDate :" + currentDate.getTime());
-            System.out.println("dateOfBirth :" + dateOfBirth.getTime());
-
-            // calculate how many days to birthday
             int noOfDaysToBirthDay = 0;
 
             if ((currentDate.get(Calendar.MONTH) == dateOfBirth.get(Calendar.MONTH)) &&
                     (currentDate.get(Calendar.DAY_OF_MONTH) == (dateOfBirth.get(Calendar.DAY_OF_MONTH)))) {
-                userResponseDto.setResponseMessage("Hello, " + userRequestDto.getUsername() + "! " +
+                response.setResponseMessage("Hello, " + request.getUsername() + "! " +
                         " Happy birthday!");
             } else {
-                userResponseDto.setResponseMessage("Hello, " + userRequestDto.getUsername() + "! " +
+                response.setResponseMessage("Hello, " + request.getUsername() + "! " +
                         " Your birthday is in " + noOfDaysToBirthDay + " day(s)");
             }
 
         }
-        return userResponseDto;
+        return response.getResponseMessage();
     }
 }

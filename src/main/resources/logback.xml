@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+	<!-- create DEV_HOME property to point to a directory on your local system -->
+
+	<property name="DEV_HOME" value="/Users/bellogbemisola/Documents/WORKSPACE/VGS/api/api-logs"/>
+
+<!--	<property name="DEV_HOME" value="/usr/app/api/logs"/>-->
+
+	<timestamp key="byDay" datePattern="dd-MM-yyyy" />
+	<contextListener
+		class="ch.qos.logback.classic.jul.LevelChangePropagator">
+		<resetJUL>true</resetJUL>
+	</contextListener>
+	<!-- To enable JMX Management -->
+	<jmxConfigurator />
+	<appender name="consoleAppender"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<charset>UTF-8</charset>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss} %p %X{TXNID} - %m%n</Pattern>
+		</encoder>
+	</appender>
+	<appender name="FILE-AUDIT"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${DEV_HOME}/rtremittancereport-${byDay}.log</file>
+		<encoder
+			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%date{"dd-MM-yyyy'T'HH:mm:ss", GMT} [%thread] %-5level
+				%class{36}.%M %L - %msg%n</pattern>
+		</encoder>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${DEV_HOME}/archived/rtremittancereport-%d{dd-MM-yyyy}.%i.log
+			</fileNamePattern>
+			<!-- each file should be at most 100MB, keep 60 days worth of history, 
+				but at most 2GB -->
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>60</maxHistory>
+			<totalSizeCap>2GB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
+	<!-- Specify logging levels -->
+	<logger name="org.springframework" level="INFO" />
+	<logger name="com.recruitment.vgs.api" level="INFO">
+		<appender-ref ref="FILE-AUDIT" />
+		<appender-ref ref="consoleAppender" />
+	</logger>
+</configuration>

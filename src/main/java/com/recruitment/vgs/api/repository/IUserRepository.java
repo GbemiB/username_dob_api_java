@@ -1,11 +1,11 @@
 package com.recruitment.vgs.api.repository;
 
-import com.recruitment.vgs.api.domain.UserRequestDto;
+import com.recruitment.vgs.api.domain.Request;
 
 import java.util.Optional;
 
 public interface IUserRepository {
-    String save(UserRequestDto requestDto) throws Exception;
-    String update(UserRequestDto requestDto) throws Exception;
-    Optional<UserRequestDto> getByUsername(String username)throws Exception;
+    String save(Request request) throws Exception;
+    String update(Request request) throws Exception;
+    Optional<Request> getByUsername(String username)throws Exception;
 }

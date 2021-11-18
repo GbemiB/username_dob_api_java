@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 @Data
-public class UserResponseDto {
+public class Response {
     private HttpStatus status;
     private String responseMessage;
 

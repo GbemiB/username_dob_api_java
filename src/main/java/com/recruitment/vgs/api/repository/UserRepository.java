@@ -1,7 +1,7 @@
 package com.recruitment.vgs.api.repository;
 
 import com.recruitment.vgs.api.database.DbConnection;
-import com.recruitment.vgs.api.domain.UserRequestDto;
+import com.recruitment.vgs.api.domain.Request;
 import oracle.jdbc.OracleTypes;
 import oracle.jdbc.internal.OracleCallableStatement;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public String save(UserRequestDto requestDto) throws Exception {
+    public String save(Request request) throws Exception {
 
         Connection connection = null;
         OracleCallableStatement callableStatement = null;
@@ -40,14 +40,14 @@ public class UserRepository implements IUserRepository {
 
             callableStatement.registerOutParameter(1, OracleTypes.VARCHAR);
             callableStatement.registerOutParameter(2, OracleTypes.VARCHAR);
-            callableStatement.setString(3, requestDto.getUsername());
-            callableStatement.setString(4, requestDto.getDateOfBirth());
+            callableStatement.setString(3, request.getUsername());
+            callableStatement.setString(4, request.getDateOfBirth());
             callableStatement.execute();
 
             responseCode = callableStatement.getString(1);
             responseMessage = callableStatement.getString(2);
 
-            logger.debug("Persist user in data base: {}", responseMessage);
+            logger.info("Persist user in data base: {}", responseMessage);
 
         } catch (Exception ex) {
             logger.error("Error occurred while trying to persist user detail {}", ex.getMessage());
@@ -56,11 +56,11 @@ public class UserRepository implements IUserRepository {
             dbConnection.closeConnection(connection, callableStatement);
         }
 
-        return responseCode;
+        return responseMessage;
     }
 
     @Override
-    public String update(UserRequestDto requestDto) throws Exception {
+    public String update(Request request) throws Exception {
         Connection connection = null;
         OracleCallableStatement callableStatement = null;
         String responseCode, responseMessage;
@@ -68,18 +68,18 @@ public class UserRepository implements IUserRepository {
         try {
             connection = dbConnection.connect();
             callableStatement = (OracleCallableStatement) connection
-                    .prepareCall("{ call " + dataBasePackage + ".save_user(?,?,?,?) }");
+                    .prepareCall("{ call " + dataBasePackage + ".update_user(?,?,?,?) }");
 
             callableStatement.registerOutParameter(1, OracleTypes.VARCHAR);
             callableStatement.registerOutParameter(2, OracleTypes.VARCHAR);
-            callableStatement.setString(3, requestDto.getUsername());
-            callableStatement.setString(4, requestDto.getDateOfBirth());
+            callableStatement.setString(3, request.getUsername());
+            callableStatement.setString(4, request.getDateOfBirth());
             callableStatement.execute();
 
             responseCode = callableStatement.getString(1);
             responseMessage = callableStatement.getString(2);
 
-            logger.debug("Persist updated user details in data base: {}", responseMessage);
+            logger.info("Persist updated user details in data base: {}", responseCode);
 
         } catch (Exception ex) {
             logger.error("Error occurred while trying to update user detail {}", ex.getMessage());
@@ -93,7 +93,7 @@ public class UserRepository implements IUserRepository {
 
 
     @Override
-    public Optional<UserRequestDto> getByUsername(String username) throws Exception {
+    public Optional<Request> getByUsername(String username) throws Exception {
         Connection connection = null;
         oracle.jdbc.OracleCallableStatement callableStatement = null;
         ResultSet resultSet = null;
@@ -118,10 +118,10 @@ public class UserRepository implements IUserRepository {
 
             resultSet = (ResultSet) callableStatement.getObject(3);
 
-            logger.info("Fetch by user id response message: {}", responseMessage);
+            logger.info("Fetch by user id response message: {}", responseCode);
 
             if (responseCode.equals("000") && resultSet != null) {
-                UserRequestDto userRequestDto = new UserRequestDto();
+                Request userRequestDto = new Request();
                 while (resultSet.next()) {
                     userRequestDto.setUsername(resultSet.getString("username"));
                     userRequestDto.setDateOfBirth(resultSet.getString("date_of_birth"));

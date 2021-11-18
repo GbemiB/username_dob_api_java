@@ -2,8 +2,8 @@ package com.recruitment.vgs.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recruitment.vgs.api.controller.UserController;
-import com.recruitment.vgs.api.domain.UserRequestDto;
-import com.recruitment.vgs.api.domain.UserResponseDto;
+import com.recruitment.vgs.api.domain.Request;
+import com.recruitment.vgs.api.domain.Response;
 import com.recruitment.vgs.api.service.UserService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -28,79 +28,31 @@ public class ControllerTest {
 	@MockBean
 	private UserService userServiceMock;
 
-	UserRequestDto userRequestDto = new UserRequestDto();
 
 	@Test
-	@DisplayName("Test to validate the create user controller")
+	@DisplayName("Test to validate the create user")
 	public void shouldReturn204ToCreateUser() throws Exception {
 
-		Mockito.when(userServiceMock.saveUser(Mockito.any(UserRequestDto.class)))
-				.thenReturn(new UserResponseDto());
+		Mockito.when(userServiceMock.saveUser(Mockito.any(Request.class)))
+				.thenReturn(new Response());
 
-		this.mockMvc.perform(post("").contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new UserRequestDto())))
+		this.mockMvc.perform(post("/user").contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new Request())))
 				.andExpect(status().isNoContent());
 	}
 
 	@Test
-	@DisplayName("Test to validate the create user controller")
-	public void shouldReturn500ToCreateUser() throws Exception {
-
-		Mockito.when(userServiceMock.saveUser(Mockito.any(UserRequestDto.class)))
-				.thenReturn(new UserResponseDto());
-
-		this.mockMvc.perform(post("").contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new UserRequestDto())))
-				.andExpect(status().isInternalServerError());
-	}
-
-	@Test
-	@DisplayName("Test to validate the create user controller")
-	public void shouldReturn200ToUpdateUser() throws Exception {
-
-		Mockito.when(userServiceMock.saveUser(Mockito.any(UserRequestDto.class)))
-				.thenReturn(new UserResponseDto());
-
-		this.mockMvc.perform(put("/username").contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new UserRequestDto())))
-				.andExpect(status().isNoContent());
-	}
-
-	@Test
-	@DisplayName("Test to validate the update user controller")
-	public void shouldReturn500ToUpdateUser() throws Exception {
-
-		Mockito.when(userServiceMock.updateUser(Mockito.any(UserRequestDto.class)))
-				.thenReturn(new UserResponseDto());
-
-		this.mockMvc.perform(put("/username").contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new UserRequestDto())))
-				.andExpect(status().isInternalServerError());
-	}
-
-	@Test
-	@DisplayName("Test to validate the create user controller")
-	public void shouldReturn204ToGetUser() throws Exception {
+	@DisplayName("Test to validate get user")
+	public void shouldReturn200ToGetUser() throws Exception {
 
 		Mockito.when(userServiceMock.getUser(Mockito.anyString()))
-				.thenReturn(new UserResponseDto());
+				.thenReturn(new String());
 
-		this.mockMvc.perform(get("/username").contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new UserRequestDto())))
-				.andExpect(status().isNoContent());
+		this.mockMvc.perform(get("/user/{username}", "gbemisola" ).contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new Request())))
+				.andExpect(status().isOk());
 	}
 
-	@Test
-	@DisplayName("Test to validate the update user controller")
-	public void shouldReturn500ToGetUser() throws Exception {
-
-		Mockito.when(userServiceMock.getUser(Mockito.anyString()))
-				.thenReturn(new UserResponseDto());
-
-		this.mockMvc.perform(put("/username").contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON).content(asJsonString(new UserRequestDto())))
-				.andExpect(status().isInternalServerError());
-	}
 
 	static String asJsonString(final Object obj) {
 		try {

@@ -59,8 +59,6 @@ public class UserService implements IUserService {
         return response;
     }
 
-
-    // use DOB and current date to calculate birthday
     @Override
     public String getUser(String username) throws ParseException {
         Response response = new Response();

@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -23,55 +27,80 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void saveUser(UserRequestDto userRequestDto) throws Exception {
+    public UserResponseDto saveUser(UserRequestDto userRequestDto) {
+        UserResponseDto userResponseDto = new UserResponseDto();
+
+        String responseCode = null;
         try {
-            String responseCode = userRepository.save(userRequestDto);
-            if (Objects.equals("000", responseCode)) {
-                UserResponseDto userResponseDto = new UserResponseDto();
-                userResponseDto.setStatus(HttpStatus.NO_CONTENT);
-            }
+            responseCode = userRepository.save(userRequestDto);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+        if (Objects.equals("000", responseCode)) {
+
+                userResponseDto.setStatus(HttpStatus.NO_CONTENT);
+            }
+        return userResponseDto;
     }
 
     @Override
-    public void updateUser(UserRequestDto userRequestDto) throws Exception {
+    public UserResponseDto updateUser(UserRequestDto userRequestDto) {
+        UserResponseDto userResponseDto = new UserResponseDto();
+
+        String responseCode = null;
         try {
-            String responseCode = userRepository.update(userRequestDto);
-            if (Objects.equals("000", responseCode)) {
-                UserResponseDto userResponseDto = new UserResponseDto();
-                userResponseDto.setStatus(HttpStatus.NO_CONTENT);
-            }
+            responseCode = userRepository.update(userRequestDto);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+        if (Objects.equals("000", responseCode)) {
+
+                userResponseDto.setStatus(HttpStatus.NO_CONTENT);
+            }
+        return userResponseDto;
     }
 
 
     // use DOB and current date to calculate birthday
     @Override
-    public String getUser(String username) throws Exception {
+    public UserResponseDto getUser(String username) throws ParseException {
         UserResponseDto userResponseDto = new UserResponseDto();
-        Optional<UserRequestDto> user = userRepository.getByUsername(username);
+        Optional<UserRequestDto> user = null;
+        try {
+            user = userRepository.getByUsername(username);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
         if (user.isPresent()) {
             UserRequestDto userRequestDto = user.get();
 
-           // logic to calculate birthday
-            // to determine no of days to birthday
-            String birthDate;
-            String currentDate;
-            String daysToBirthday = " ";
+            String dob = userRequestDto.getDateOfBirth();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = sdf.parse(dob);
 
-            if ("birthDate" != "currentDate"){
-                return ("Hello," + userRequestDto.getUsername() + "! Your birthday is in " + daysToBirthday + "day(s)" );
-            } else if ("birthDate" == "currentDate"){
-                return ("Hello," + userRequestDto.getUsername() + " ! Happy birthday!" );
+            logger.info(" Date coming from data base {} ", dob);
+
+            Calendar currentDate = Calendar.getInstance();
+            Calendar dateOfBirth = Calendar.getInstance();
+
+            // use regex to split raw dob from db; replace - with, and pass in
+            dateOfBirth.set(1996, 9, 23);
+            System.out.println("currentDate :" + currentDate.getTime());
+            System.out.println("dateOfBirth :" + dateOfBirth.getTime());
+
+            // calculate how many days to birthday
+            int noOfDaysToBirthDay = 0;
+
+            if ((currentDate.get(Calendar.MONTH) == dateOfBirth.get(Calendar.MONTH)) &&
+                    (currentDate.get(Calendar.DAY_OF_MONTH) == (dateOfBirth.get(Calendar.DAY_OF_MONTH)))) {
+                userResponseDto.setResponseMessage("Hello, " + userRequestDto.getUsername() + "! " +
+                        " Happy birthday!");
+            } else {
+                userResponseDto.setResponseMessage("Hello, " + userRequestDto.getUsername() + "! " +
+                        " Your birthday is in " + noOfDaysToBirthDay + " day(s)");
             }
 
-        } else {
-            userResponseDto.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return null;
+        return userResponseDto;
     }
 }

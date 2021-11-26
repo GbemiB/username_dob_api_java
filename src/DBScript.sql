@@ -1,7 +1,7 @@
-CREATE TABLE save_customer
+CREATE TABLE USERNAME
 (
     username      varchar2(100) not null,
-    date_of_birth varchar2(100) not null
+    date_of_birth DATE not null
 );
 
 CREATE OR REPLACE PACKAGE GBEMISOLA.expand_world_pkg AS
@@ -10,14 +10,14 @@ CREATE OR REPLACE PACKAGE GBEMISOLA.expand_world_pkg AS
         out_response_code OUT  VARCHAR2,
         out_response_message     OUT  VARCHAR2,
         p_username  IN  VARCHAR2,
-        p_date_of_birth    IN  VARCHAR2
+        p_date_of_birth    IN  DATE
     );
 
     PROCEDURE update_user (
         out_response_code OUT VARCHAR2,
         out_response_message OUT VARCHAR2,
         p_username IN VARCHAR2,
-        p_date_of_birth IN VARCHAR2
+        p_date_of_birth IN DATE
 
     );
 
@@ -41,7 +41,7 @@ CREATE OR REPLACE PACKAGE BODY GBEMISOLA.expand_world_pkg AS
         out_response_code OUT  VARCHAR2,
         out_response_message     OUT  VARCHAR2,
         p_username  IN  VARCHAR2,
-        p_date_of_birth    IN  VARCHAR2
+        p_date_of_birth    IN  DATE
     ) AS
 
     BEGIN
@@ -74,7 +74,7 @@ CREATE OR REPLACE PACKAGE BODY GBEMISOLA.expand_world_pkg AS
         out_response_code OUT VARCHAR2,
         out_response_message OUT VARCHAR2,
         p_username  IN  VARCHAR2,
-        p_date_of_birth IN  VARCHAR2
+        p_date_of_birth IN  DATE
     )
         IS
     BEGIN

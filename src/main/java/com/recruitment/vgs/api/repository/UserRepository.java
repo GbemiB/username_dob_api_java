@@ -2,29 +2,27 @@ package com.recruitment.vgs.api.repository;
 
 import com.recruitment.vgs.api.database.DbConnection;
 import com.recruitment.vgs.api.domain.Request;
+import lombok.extern.slf4j.Slf4j;
 import oracle.jdbc.OracleTypes;
 import oracle.jdbc.internal.OracleCallableStatement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class UserRepository implements IUserRepository {
-    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
     @Value("${package.db}")
     private String dataBasePackage;
 
-    private final DbConnection dbConnection;
-
-    public UserRepository(DbConnection dbConnection) {
-        this.dbConnection = dbConnection;
-    }
+    @Autowired
+    DbConnection dbConnection;
 
     @Override
     public String save(Request request) throws Exception {
@@ -41,16 +39,16 @@ public class UserRepository implements IUserRepository {
             callableStatement.registerOutParameter(1, OracleTypes.VARCHAR);
             callableStatement.registerOutParameter(2, OracleTypes.VARCHAR);
             callableStatement.setString(3, request.getUsername());
-            callableStatement.setString(4, request.getDateOfBirth());
+            callableStatement.setDate(4, (Date) request.getDateOfBirth());
             callableStatement.execute();
 
             responseCode = callableStatement.getString(1);
             responseMessage = callableStatement.getString(2);
 
-            logger.info("Persist user in data base: {}", responseMessage);
+            log.info("Persist user in data base: {}", responseMessage);
 
         } catch (Exception ex) {
-            logger.error("Error occurred while trying to persist user detail {}", ex.getMessage());
+            log.error("Error occurred while trying to persist user detail {}", ex.getMessage());
             throw ex;
         } finally {
             dbConnection.closeConnection(connection, callableStatement);
@@ -73,16 +71,16 @@ public class UserRepository implements IUserRepository {
             callableStatement.registerOutParameter(1, OracleTypes.VARCHAR);
             callableStatement.registerOutParameter(2, OracleTypes.VARCHAR);
             callableStatement.setString(3, request.getUsername());
-            callableStatement.setString(4, request.getDateOfBirth());
+            callableStatement.setDate(4, (Date) request.getDateOfBirth());
             callableStatement.execute();
 
             responseCode = callableStatement.getString(1);
             responseMessage = callableStatement.getString(2);
 
-            logger.info("Persist updated user details in data base: {}", responseCode);
+            log.info("Persist updated user details in data base: {}", responseCode);
 
         } catch (Exception ex) {
-            logger.error("Error occurred while trying to update user detail {}", ex.getMessage());
+            log.error("Error occurred while trying to update user detail {}", ex.getMessage());
             throw ex;
         } finally {
             dbConnection.closeConnection(connection, callableStatement);
@@ -118,18 +116,18 @@ public class UserRepository implements IUserRepository {
 
             resultSet = (ResultSet) callableStatement.getObject(3);
 
-            logger.info("Fetch by user id response message: {}", responseCode);
+            log.info("Fetch by user id response message: {}", responseCode);
 
             if (responseCode.equals("000") && resultSet != null) {
-                Request userRequestDto = new Request();
+                Request request = new Request();
                 while (resultSet.next()) {
-                    userRequestDto.setUsername(resultSet.getString("username"));
-                    userRequestDto.setDateOfBirth(resultSet.getString("date_of_birth"));
+                    request.setUsername(resultSet.getString("username"));
+                    request.setDateOfBirth(resultSet.getDate("date_of_birth"));
                 }
-                return Optional.of(userRequestDto);
+                return Optional.of(request);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             throw e;
         } finally {
             dbConnection.closeConnection(connection, callableStatement, resultSet);

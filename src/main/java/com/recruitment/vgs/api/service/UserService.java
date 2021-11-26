@@ -5,29 +5,22 @@ import com.recruitment.vgs.api.domain.Response;
 import com.recruitment.vgs.api.repository.UserRepository;
 import com.recruitment.vgs.api.util.DateDiffCalculator;
 import com.recruitment.vgs.api.util.DateToCalender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class UserService implements IUserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
-    private final UserRepository userRepository;
-
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    UserRepository userRepository;
 
     @Override
     public Response saveUser(Request request) {
@@ -63,7 +56,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String getUser(String username) throws ParseException {
+    public String getUser(String username) throws Exception {
         Response response = new Response();
         DateToCalender obj = new DateToCalender();
         DateDiffCalculator dateDiffCalculator = new DateDiffCalculator();
@@ -77,17 +70,14 @@ public class UserService implements IUserService {
         if (user.isPresent()) {
             Request request = user.get();
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String dob = request.getDateOfBirth();
-            Date date = sdf.parse(dob);
+            Date dob = request.getDateOfBirth();
+            Date date2 = new Date();
 
-            Calendar dateOfBirth = obj.dateToCalendar(date);
+            Calendar dateOfBirth = obj.dateToCalendar(dob);
             Calendar currentDate = Calendar.getInstance();
 
-            String todayDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-
-            Long noOfDaysToBirthDay = DateDiffCalculator.calculateDays(todayDate, dob);
-            logger.info(" Numbers of Days to birthday  {} ", noOfDaysToBirthDay);
+            Long noOfDaysToBirthDay = DateDiffCalculator.calculateDays(date2, dob);
+            log.info(" Numbers of Days to birthday  {} ", noOfDaysToBirthDay);
 
             if ((currentDate.get(Calendar.MONTH) == dateOfBirth.get(Calendar.MONTH)) &&
                     (currentDate.get(Calendar.DAY_OF_MONTH) == (dateOfBirth.get(Calendar.DAY_OF_MONTH)))) {

@@ -8,5 +8,5 @@ import java.text.ParseException;
 public interface IUserService {
      Response saveUser(Request request);
      Response updateUser(Request request);
-     String getUser(String username) throws ParseException;
+     String getUser(String username) throws Exception;
 }
